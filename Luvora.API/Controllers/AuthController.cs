@@ -43,7 +43,31 @@ namespace Luvora.API.Controllers
             try
             {
                 var result = await _authService.LoginAsync(request.Email, request.Password);
-                return Ok(result);
+                return Ok(new
+                {
+                    accessToken = result.accessToken,
+                    refreshToken = result.refreshToken,
+                }
+                    );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+        {
+            try
+            {
+                var result = await _authService.RefreshAsync(refreshToken);
+
+                return Ok(new
+                {
+                    accessToken = result.refreshToken,
+                    refreshToken = result.refreshToken,
+                });
             }
             catch (Exception ex)
             {

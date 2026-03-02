@@ -18,11 +18,16 @@ namespace Luvora.Infrastructure.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly JwtSettings _jwtSettings;
-        public AuthService(IUserRepository userRepository, IOptions<JwtSettings> jwtOptions)
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        public AuthService(
+            IUserRepository userRepository, 
+            IOptions<JwtSettings> jwtOptions, 
+            IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _jwtSettings = jwtOptions.Value
                 ?? throw new ArgumentNullException(nameof(jwtOptions));
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         public async Task RegisterAsync(string email, string password)
@@ -37,7 +42,7 @@ namespace Luvora.Infrastructure.Services
             await _userRepository.AddAsync(user);
         }
 
-        public async Task<string> LoginAsync(string email, string password)
+        public async Task<(string accessToken, string refreshToken)> LoginAsync(string email, string password)
         {
             var user = await _userRepository.GetByEmailAsync(email) ?? throw new Exception("Invalid User Credentials.");
 
@@ -45,6 +50,22 @@ namespace Luvora.Infrastructure.Services
 
             if (!isPasswordValid)
                 throw new Exception("Invalid password.");
+
+            var accessToken = GenerateJwtToken(user);
+            var refreshedTokenValue = Guid.NewGuid().ToString();
+            var refreshedToken = new RefreshToken(
+                user.Id,
+                refreshedTokenValue,
+                DateTime.UtcNow.AddDays(7)
+                );
+
+            await _refreshTokenRepository.AddAsync(refreshedToken);
+            return (accessToken, refreshedTokenValue);
+
+        }
+
+        private string GenerateJwtToken(User user)
+        {
 
             var claims = new[]
             {
@@ -65,6 +86,36 @@ namespace Luvora.Infrastructure.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<(string accessToken, string refreshToken)> RefreshAsync(string refreshToken)
+        {
+            var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+
+            if (storedToken == null ||
+                storedToken.IsRevoked ||
+                storedToken.ExpiryDate <= DateTime.UtcNow)
+                throw new Exception("Invalid refresh token");
+
+            var user = await _userRepository.GetByIdAsync(storedToken.UserId);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            await _refreshTokenRepository.RevokeAsync(storedToken.Id);
+
+            var newAccessToken = GenerateJwtToken(user);
+
+            var newRefreshTokenValue = Guid.NewGuid().ToString();
+            var newRefreshToken = new RefreshToken(
+                user.Id,
+                newRefreshTokenValue,
+                DateTime.UtcNow.AddDays(7)
+                );
+
+            await _refreshTokenRepository.AddAsync(newRefreshToken);
+
+            return (newAccessToken, newRefreshTokenValue);
         }
     }
 }

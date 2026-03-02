@@ -11,16 +11,11 @@ namespace Luvora.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly string _connectionString;
-        public UserRepository(IConfiguration configuration)
+        private readonly IDbConnectionFactory _connectionFactory;
+        public UserRepository(IDbConnectionFactory connectionFactory)
         {
-            _connectionString = configuration
-                .GetConnectionString("DefaultConnection")
-                ?? throw new ArgumentNullException("DefaultConnection not found");
+            _connectionFactory = connectionFactory;
         }
-
-        private IDbConnection CreateConnection()
-            => new SqlConnection(_connectionString);
 
         public async Task AddAsync(User user)
         {
@@ -28,7 +23,7 @@ namespace Luvora.Infrastructure.Repositories
                 Insert into Users (Id, Email, PasswordHash, Role, CreatedAt, IsActive)
                 Values (@Id, @Email, @PasswordHash, @Role, @CreatedAt, @IsActive)";
 
-            using var connection = CreateConnection();
+            using var connection = _connectionFactory.GetConnection();
             await connection.ExecuteAsync(sql, user);
 
         }
@@ -37,7 +32,7 @@ namespace Luvora.Infrastructure.Repositories
         {
             try
             {
-                using var connection = new SqlConnection(_connectionString);
+                using var connection = _connectionFactory.GetConnection();
 
                 var sql = "SELECT * FROM Users WHERE Email = @Email";
 
@@ -55,7 +50,7 @@ namespace Luvora.Infrastructure.Repositories
             const string sql = @"
                 Select * from Users
                 Where Id = @Id";
-            using var connection = CreateConnection();
+            using var connection = _connectionFactory.GetConnection();
             return await connection.QueryFirstOrDefaultAsync<User>(sql, new {Id = id});
         }
     }
