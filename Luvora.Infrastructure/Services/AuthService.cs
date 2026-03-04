@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Luvora.Application.Common;
+using Luvora.Application.DTOs.Auth;
 using Luvora.Application.Interfaces;
 using Luvora.Application.Services;
 using Luvora.Domain.Entities;
@@ -116,6 +117,28 @@ namespace Luvora.Infrastructure.Services
             await _refreshTokenRepository.AddAsync(newRefreshToken);
 
             return (newAccessToken, newRefreshTokenValue);
+        }
+
+        public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+                throw new Exception("Current password is incorrect");
+
+            if (BCrypt.Net.BCrypt.Verify(request.NewPassword, user.PasswordHash))
+                throw new Exception("New password cannot be same as current password");
+
+            var newHashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+
+            var updated = await _userRepository.UpdatePasswordAsync(userId, newHashedPassword);
+            await _refreshTokenRepository.RevokeAllByUserIdAsync(userId);
+
+            if (!updated)
+                throw new Exception("Password update failed");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Luvora.Application.DTOs;
+﻿using System.Security.Claims;
+using Luvora.Application.DTOs.Auth;
 using Luvora.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,13 +15,6 @@ namespace Luvora.API.Controllers
         public AuthController(IAuthService authService)
         {
             _authService = authService;
-        }
-
-        [Authorize]
-        [HttpGet("me")]
-        public IActionResult Me()
-        {
-            return Ok("You are authenticated");
         }
 
         [HttpPost("register")]
@@ -68,6 +62,23 @@ namespace Luvora.API.Controllers
                     accessToken = result.refreshToken,
                     refreshToken = result.refreshToken,
                 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                await _authService.ChangePasswordAsync(userId, request);
+                return Ok("Password changed successfully");
             }
             catch (Exception ex)
             {

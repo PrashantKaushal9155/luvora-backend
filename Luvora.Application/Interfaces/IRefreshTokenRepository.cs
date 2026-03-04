@@ -12,5 +12,6 @@ namespace Luvora.Application.Interfaces
         Task AddAsync(RefreshToken token);
         Task<RefreshToken?> GetByTokenAsync(string token);
         Task RevokeAsync(Guid id);
+        Task RevokeAllByUserIdAsync(Guid userId);
     }
 }

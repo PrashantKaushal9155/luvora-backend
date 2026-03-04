@@ -50,5 +50,17 @@ namespace Luvora.Infrastructure.Repositories
             using var connection = _connectionFactory.GetConnection();
             await connection.ExecuteAsync(sql, new { Id = id });
         }
+
+        public async Task RevokeAllByUserIdAsync(Guid userId)
+        {
+            const string sql = @"
+                UPDATE RefreshTokens
+                SET IsRevoked = 1
+                WHERE UserId = @UserId
+                AND IsRevoked = 0";
+
+            using var connection = _connectionFactory.GetConnection();
+            await connection.ExecuteAsync(sql, new { UserId = userId });
+        }
     }
 }
