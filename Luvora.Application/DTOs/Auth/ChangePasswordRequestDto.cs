@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Luvora.Application.DTOs.Auth
 {
-    public class RegisterRequest
+    public class ChangePasswordRequestDto
     {
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
+        public string CurrentPassword { get; set; } = null!;
+        public string NewPassword { get; set; } = null!;
     }
 }

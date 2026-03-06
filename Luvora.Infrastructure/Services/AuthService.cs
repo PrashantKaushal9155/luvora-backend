@@ -20,21 +20,24 @@ namespace Luvora.Infrastructure.Services
         private readonly IUserRepository _userRepository;
         private readonly JwtSettings _jwtSettings;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IUserProfileRepository _userProfileRepository;
+
         public AuthService(
             IUserRepository userRepository, 
             IOptions<JwtSettings> jwtOptions, 
-            IRefreshTokenRepository refreshTokenRepository)
+            IRefreshTokenRepository refreshTokenRepository,
+            IUserProfileRepository userProfileRepository)
         {
             _userRepository = userRepository;
             _jwtSettings = jwtOptions.Value
                 ?? throw new ArgumentNullException(nameof(jwtOptions));
             _refreshTokenRepository = refreshTokenRepository;
+            _userProfileRepository = userProfileRepository;
         }
 
         public async Task RegisterAsync(string email, string password)
         {
             var existingUser = await _userRepository.GetByEmailAsync(email);
-            Console.WriteLine(existingUser == null ? "NULL" : "NOT NULL");
             if (existingUser != null)
                 throw new Exception("User already exists.");
 
@@ -43,7 +46,7 @@ namespace Luvora.Infrastructure.Services
             await _userRepository.AddAsync(user);
         }
 
-        public async Task<(string accessToken, string refreshToken)> LoginAsync(string email, string password)
+        public async Task<LoginResponseDto> LoginAsync(string email, string password)
         {
             var user = await _userRepository.GetByEmailAsync(email) ?? throw new Exception("Invalid User Credentials.");
 
@@ -61,8 +64,15 @@ namespace Luvora.Infrastructure.Services
                 );
 
             await _refreshTokenRepository.AddAsync(refreshedToken);
-            return (accessToken, refreshedTokenValue);
 
+            var profile = await _userProfileRepository.GetByUserIdAsync(user.Id);
+            Console.WriteLine("UserProfile:", profile);
+            return new LoginResponseDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshedTokenValue,
+                ProfileCompleted = profile != null && profile.ProfileCompleted
+            };
         }
 
         private string GenerateJwtToken(User user)
@@ -119,7 +129,7 @@ namespace Luvora.Infrastructure.Services
             return (newAccessToken, newRefreshTokenValue);
         }
 
-        public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
+        public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 

@@ -18,7 +18,7 @@ namespace Luvora.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register(RegisterRequestDto request)
         {
             try
             {
@@ -32,17 +32,12 @@ namespace Luvora.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(RegisterRequest request)
+        public async Task<IActionResult> Login(LoginRequestDto request)
         {
             try
             {
                 var result = await _authService.LoginAsync(request.Email, request.Password);
-                return Ok(new
-                {
-                    accessToken = result.accessToken,
-                    refreshToken = result.refreshToken,
-                }
-                    );
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -71,7 +66,7 @@ namespace Luvora.API.Controllers
 
         [Authorize]
         [HttpPost("change-password")]
-        public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+        public async Task<IActionResult> ChangePassword(ChangePasswordRequestDto request)
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
