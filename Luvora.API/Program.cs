@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Luvora.Application.Common;
-using Luvora.Application.Interfaces;
-using Luvora.Application.Services;
 using Luvora.Infrastructure.Repositories;
 using Luvora.Infrastructure.Services;
 using Microsoft.OpenApi;
+using Luvora.Application.Interfaces.Services;
+using Luvora.Application.Interfaces.Infrastructure;
+using Luvora.Application.Interfaces.Repositories;
+using Luvora.Infrastructure.Database;
+using Luvora.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +43,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped<ISwipeRepository, SwipeRepository>();
+builder.Services.AddScoped<IMatchRepository, MatchRepository>();
+builder.Services.AddScoped<ISwipeService, SwipeService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var app = builder.Build();

@@ -4,11 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Luvora.Application.Interfaces;
+using Luvora.Application.Interfaces.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
-namespace Luvora.Infrastructure.Repositories
+namespace Luvora.Infrastructure.Database
 {
     public class DbConnectionFactory : IDbConnectionFactory
     {

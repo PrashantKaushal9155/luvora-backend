@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Luvora.Application.Interfaces
+namespace Luvora.Application.Interfaces.Infrastructure
 {
     public interface IDbConnectionFactory
     {

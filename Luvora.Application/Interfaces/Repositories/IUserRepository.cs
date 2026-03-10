@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Luvora.Domain.Entities;
 
-namespace Luvora.Application.Interfaces
+namespace Luvora.Application.Interfaces.Repositories
 {
     public interface IUserRepository
     {

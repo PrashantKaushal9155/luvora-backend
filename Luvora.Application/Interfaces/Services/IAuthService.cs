@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Luvora.Application.DTOs.Auth;
 
-namespace Luvora.Application.Services
+namespace Luvora.Application.Interfaces.Services
 {
     public interface IAuthService
     {

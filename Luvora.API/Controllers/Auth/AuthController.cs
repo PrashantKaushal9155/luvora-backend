@@ -1,11 +1,11 @@
 ﻿using System.Security.Claims;
 using Luvora.Application.DTOs.Auth;
-using Luvora.Application.Services;
+using Luvora.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Luvora.API.Controllers
+namespace Luvora.API.Controllers.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -55,7 +55,7 @@ namespace Luvora.API.Controllers
                 return Ok(new
                 {
                     accessToken = result.refreshToken,
-                    refreshToken = result.refreshToken,
+                    result.refreshToken,
                 });
             }
             catch (Exception ex)

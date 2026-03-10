@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
-using Luvora.Application.Interfaces;
+using Luvora.Application.Interfaces.Infrastructure;
+using Luvora.Application.Interfaces.Repositories;
 using Luvora.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 

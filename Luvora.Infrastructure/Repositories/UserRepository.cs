@@ -1,5 +1,6 @@
 ﻿using Dapper;
-using Luvora.Application.Interfaces;
+using Luvora.Application.Interfaces.Infrastructure;
+using Luvora.Application.Interfaces.Repositories;
 using Luvora.Domain.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;

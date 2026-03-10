@@ -1,23 +1,24 @@
 ﻿using System.Security.Claims;
 using Luvora.Application.DTOs.Profile;
-using Luvora.Application.Interfaces;
+using Luvora.Application.Interfaces.Repositories;
+using Luvora.Application.Interfaces.Services;
 using Luvora.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Luvora.API.Controllers
+namespace Luvora.API.Controllers.Profile
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
     {
-        private readonly IUserProfileRepository _profileRepository;
+        private readonly IProfileService _profileService;
 
-        public ProfileController(IUserProfileRepository profileRepository)
+        public ProfileController(IProfileService profileService)
         {
-            _profileRepository = profileRepository;
+           _profileService = profileService;
         }
 
         [HttpPost("upsert")]
@@ -25,22 +26,7 @@ namespace Luvora.API.Controllers
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            var profile = new UserProfile(
-                userId,
-                request.Name,
-                request.DateOfBirth,
-                request.Gender,
-                request.PreferredGender,
-                request.RelationshipStatus,
-                request.MinPreferredAge,
-                request.MaxPreferredAge,
-                request.City,
-                request.Bio,
-                request.Country,
-                request.Occupation
-                );
-
-            var result = await _profileRepository.UpsertAsync(profile);
+            var result = await _profileService.UpsertProfileAsync(userId, request);
 
             if (!result)
                 return BadRequest("Profile update failed!");
@@ -53,7 +39,7 @@ namespace Luvora.API.Controllers
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            var profile = await _profileService.GetProfileAsync(userId);
 
             if (profile == null)
                 return NotFound("Profile not created yet!");
