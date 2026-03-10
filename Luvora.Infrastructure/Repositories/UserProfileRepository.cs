@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using Luvora.Application.DTOs.DiscoveryProfile;
 using Luvora.Application.Interfaces.Infrastructure;
 using Luvora.Application.Interfaces.Repositories;
 using Luvora.Domain.Entities;
+using Luvora.Domain.Enums;
 
 namespace Luvora.Infrastructure.Repositories
 {
@@ -85,5 +87,52 @@ namespace Luvora.Infrastructure.Repositories
 
 			return result > 0;
         }
+
+		public async Task<IEnumerable<DiscoveryProfileDto>> GetDiscoveryProfileAsync(Guid currentUserId, Gender preferredGender, int minAge, int maxAge)
+        {
+			var sql = @"
+			Select top 20
+				p.UserId,
+				p.Name,
+				DATEDIFF(YEAR, p.DateOfBirth, GETUTCDATE()) AS Age,
+				p.City,
+				p.Bio,
+				p.Occupation
+			FROM UserProfiles p
+			WHERE p.UserId != @CurrentUserId
+			AND p.ProfileCompleted = 1
+			AND p.IsDeleted = 0
+			AND p.IsVisible = 1
+			AND p.Gender = @PreferredGender
+
+			AND DATEDIFF(YEAR, p.DateOfBirth, GETUTCDATE())
+				BETWEEN @MinAge AND @MaxAge
+
+			AND NOT EXISTS (
+				SELECT 1
+				FROM SwipeActions s
+				WHERE s.SwiperUserId = @CurrentUserId
+				AND s.TargetUserId = p.UserId
+			)
+
+			AND NOT EXISTS (
+				SELECT 1
+				FROM Matches m
+				WHERE
+				(m.User1Id = @CurrentUserId AND m.User2Id = p.UserId)
+				OR
+				(m.User1Id = p.UserId AND m.User2Id = @CurrentUserId)
+			)";
+
+			using var connection = _connectionFactory.GetConnection();
+
+			return await connection.QueryAsync<DiscoveryProfileDto>(sql, new
+			{
+				CurrentUserId = currentUserId,
+				PreferredGender = preferredGender,
+				MinAge = minAge,
+				MaxAge = maxAge
+			});
+		}
     }
 }
