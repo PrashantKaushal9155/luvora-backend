@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Luvora.API.Controllers.Photo
 {
-    [Route("api/[controller]")]
+    [Route("api/photos")]
     [ApiController]
     [Authorize]
     public class PhotosController : ControllerBase

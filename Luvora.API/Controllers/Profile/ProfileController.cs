@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Luvora.API.Controllers.Profile
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("api/profile")]
     [ApiController]
     public class ProfileController : ControllerBase
     {

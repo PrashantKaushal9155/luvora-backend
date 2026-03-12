@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Luvora.API.Controllers.Swipe
 {
-    [Route("api/[controller]")]
+    [Route("api/swipe")]
     [ApiController]
     [Authorize]
     public class SwipeController : ControllerBase

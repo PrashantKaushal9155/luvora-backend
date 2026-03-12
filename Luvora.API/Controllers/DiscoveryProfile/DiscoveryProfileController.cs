@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Luvora.API.Controllers.DiscoveryProfile
 {
-    [Route("api/[controller]")]
+    [Route("api/discoverprofiles")]
     [ApiController]
     [Authorize]
     public class DiscoveryProfileController : ControllerBase

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Luvora.API.Controllers.Auth
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
