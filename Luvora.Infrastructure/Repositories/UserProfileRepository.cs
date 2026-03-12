@@ -97,8 +97,14 @@ namespace Luvora.Infrastructure.Repositories
 				DATEDIFF(YEAR, p.DateOfBirth, GETUTCDATE()) AS Age,
 				p.City,
 				p.Bio,
-				p.Occupation
+				p.Occupation,
+				ph.PhotoUrl As PrimaryPhotoUrl
 			FROM UserProfiles p
+
+			Left Join UserPhotos ph
+			On ph.UserId = p.UserId
+			And ph.IsPrimary = 1
+
 			WHERE p.UserId != @CurrentUserId
 			AND p.ProfileCompleted = 1
 			AND p.IsDeleted = 0

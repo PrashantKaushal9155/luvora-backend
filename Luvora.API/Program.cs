@@ -10,6 +10,7 @@ using Luvora.Application.Interfaces.Infrastructure;
 using Luvora.Application.Interfaces.Repositories;
 using Luvora.Infrastructure.Database;
 using Luvora.Application.Services;
+using Luvora.Infrastructure.Services.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,10 @@ builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<ISwipeService, SwipeService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IDiscoveryProfileService, DiscoveryProfileService>();
+builder.Services.AddScoped<IUserPhotoRepository, UserPhotoRepository>();
+builder.Services.AddScoped<IPhotoStorageService, LocalPhotoStorageService>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var app = builder.Build();
@@ -63,6 +68,7 @@ app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.UseStaticFiles();
 
 var summaries = new[]
 {

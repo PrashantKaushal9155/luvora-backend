@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using Luvora.Application.DTOs.Match;
 using Luvora.Application.Interfaces.Infrastructure;
 using Luvora.Application.Interfaces.Repositories;
 using Luvora.Domain.Entities;
@@ -57,6 +58,43 @@ namespace Luvora.Infrastructure.Repositories
             });
 
             return count > 0;
+        }
+
+        public async Task<IEnumerable<MatchDto>> GetUserMatchesAsync(Guid currentUserId)
+        {
+            var sql = @"
+            Select
+                m.Id As MatchId,
+                p.UserId,
+                p.Name,
+                DATEDIFF(YEAR, p.DateOfBirth, GETUTCDATE()) AS Age,
+                p.City,
+                ph.PhotoUrl,
+                m.CreatedAt As MatchedAt
+            From Matches m
+            Join UserProfiles p
+            On p.UserId =
+            Case
+                When m.User1Id = @CurrentUserId Then m.User2Id
+                Else m.UserId
+            End
+            Left Join UserPhotos ph
+            On ph.UserId = p.UserId
+            And ph.IsPrimary = 1
+
+            Where
+            m.User1Id = @CurrentUserId
+            Or m.User2Id = @CurrentUserId
+
+            Order By m.CreatedAt Desc
+            ";
+
+            using var connection = _connectionFactory.GetConnection();
+
+            return await connection.QueryAsync<MatchDto>(sql, new
+            {
+                CurrentUserId = currentUserId
+            });
         }
     }
 }
