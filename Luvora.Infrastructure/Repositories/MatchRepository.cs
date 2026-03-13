@@ -70,7 +70,10 @@ namespace Luvora.Infrastructure.Repositories
                 DATEDIFF(YEAR, p.DateOfBirth, GETUTCDATE()) AS Age,
                 p.City,
                 ph.PhotoUrl,
-                m.CreatedAt As MatchedAt
+                m.CreatedAt As MatchedAt,
+                ISNULL(u.UnreadCount,0) AS UnreadMessages,
+                lm.Content As LastMessage,
+                lm.CreatedAt As LastMessageAt
             From Matches m
             Join UserProfiles p
             On p.UserId =
@@ -78,9 +81,28 @@ namespace Luvora.Infrastructure.Repositories
                 When m.User1Id = @CurrentUserId Then m.User2Id
                 Else m.UserId
             End
+
             Left Join UserPhotos ph
             On ph.UserId = p.UserId
             And ph.IsPrimary = 1
+
+            Left Join
+            (
+                Selelct MatchId, Count(*) As UnreadCount
+                From Messages
+                Where ReceiverUserId = @UserId
+                And IsRead = 0
+                Group By MatchId
+            ) u
+            On u.MatchId = m.Id
+
+            Outer Apply
+            (
+                Select Top 1 Content, CreatedAt
+                From Messages
+                Where MatchId = m.Id
+                Order By CreatedAt Desc
+            )
 
             Where
             m.User1Id = @CurrentUserId

@@ -15,5 +15,8 @@ namespace Luvora.Application.DTOs.Match
         public string City { get; set; } = null!;
         public string? PhotoUrl { get; set; }
         public DateTime MatchedAt { get; set; }
+        public int UnreadMessages { get; set; }
+        public string? LastMessage { get; set; }
+        public DateTime? LastMessageAt { get; set; }
     }
 }

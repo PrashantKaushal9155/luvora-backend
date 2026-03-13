@@ -11,6 +11,8 @@ using Luvora.Application.Interfaces.Repositories;
 using Luvora.Infrastructure.Database;
 using Luvora.Application.Services;
 using Luvora.Infrastructure.Services.Storage;
+using Luvora.API.Hubs;
+using Luvora.Infrastructure.RealTime;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,8 +55,12 @@ builder.Services.AddScoped<IUserPhotoRepository, UserPhotoRepository>();
 builder.Services.AddScoped<IPhotoStorageService, LocalPhotoStorageService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddSingleton<PresenceTracker>(); //Singleton coz it must track all connected users globally.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -69,25 +75,26 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.UseStaticFiles();
+app.MapHub<ChatHub>("/chatHub");
 
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+//app.MapGet("/weatherforecast", () =>
+//{
+//    var forecast =  Enumerable.Range(1, 5).Select(index =>
+//        new WeatherForecast
+//        (
+//            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+//            Random.Shared.Next(-20, 55),
+//            summaries[Random.Shared.Next(summaries.Length)]
+//        ))
+//        .ToArray();
+//    return forecast;
+//})
+//.WithName("GetWeatherForecast");
 
 app.Run();
 
