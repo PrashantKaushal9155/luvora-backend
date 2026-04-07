@@ -51,6 +51,7 @@ namespace Luvora.Infrastructure.Repositories
 							(
 								Id,
 								UserId,
+								Name,
 								City,
 								Bio,
 								Gender,
@@ -67,6 +68,7 @@ namespace Luvora.Infrastructure.Repositories
 							(
 								@Id,
 								@UserId,
+								@Name,
 								@City,
 								@Bio,
 								@Gender,
