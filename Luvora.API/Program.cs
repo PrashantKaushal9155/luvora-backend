@@ -1,18 +1,21 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Luvora.API.Hubs;
+using Luvora.API.Validators;
 using Luvora.Application.Common;
-using Luvora.Infrastructure.Repositories;
-using Luvora.Infrastructure.Services;
-using Microsoft.OpenApi;
-using Luvora.Application.Interfaces.Services;
 using Luvora.Application.Interfaces.Infrastructure;
 using Luvora.Application.Interfaces.Repositories;
-using Luvora.Infrastructure.Database;
+using Luvora.Application.Interfaces.Services;
 using Luvora.Application.Services;
-using Luvora.Infrastructure.Services.Storage;
-using Luvora.API.Hubs;
+using Luvora.Infrastructure.Database;
 using Luvora.Infrastructure.RealTime;
+using Luvora.Infrastructure.Repositories;
+using Luvora.Infrastructure.Services;
+using Luvora.Infrastructure.Services.Storage;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +69,8 @@ builder.Services.AddSingleton<PresenceTracker>(); //Singleton coz it must track 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",

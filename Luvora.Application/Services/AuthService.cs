@@ -40,7 +40,7 @@ namespace Luvora.Infrastructure.Services
         {
             var existingUser = await _userRepository.GetByEmailAsync(email);
             if (existingUser != null)
-                throw new Exception("User already exists.");
+                throw new InvalidOperationException("User already exists.");
 
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
             var user = new User(email, passwordHash);
@@ -49,7 +49,7 @@ namespace Luvora.Infrastructure.Services
 
         public async Task<LoginResponseDto> LoginAsync(string email, string password)
         {
-            var user = await _userRepository.GetByEmailAsync(email) ?? throw new Exception("Invalid User Credentials.");
+            var user = await _userRepository.GetByEmailAsync(email) ?? throw new Exception("Invalid Username");
 
             var isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
 
