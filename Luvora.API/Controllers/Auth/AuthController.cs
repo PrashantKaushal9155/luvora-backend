@@ -20,15 +20,8 @@ namespace Luvora.API.Controllers.Auth
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequestDto request)
         {
-            try
-            {
                 await _authService.RegisterAsync(request.Email, request.Password);
                 return Ok("User registered successfully.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
         }
 
         [HttpPost("login")]
